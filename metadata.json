@@ -1,0 +1,6 @@
+{
+  "name": "FlashMaster",
+  "description": "An intelligent flashcard learning and spaced-repetition study app for students and professionals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
