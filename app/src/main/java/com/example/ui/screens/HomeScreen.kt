@@ -69,7 +69,7 @@ fun HomeScreen(
             "Continuous learning is the minimum requirement for success in any field.",
             "Your mind is a muscle - exercise it card by card!"
         )
-        quotes[System.currentTimeMillis().toInt() % quotes.size]
+        quotes.random()
     }
 
     Column(
