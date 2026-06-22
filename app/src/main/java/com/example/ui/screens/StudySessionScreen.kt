@@ -20,7 +20,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -35,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.Deck
 import com.example.data.model.Flashcard
 import com.example.ui.theme.*
+import com.example.ui.components.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 import kotlinx.coroutines.delay
 
@@ -139,7 +143,7 @@ fun StudySessionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+                .screenBackground()
                 .pointerInput(index) {
                     // Gesture dragging engine
                     detectDragGestures(
@@ -166,17 +170,14 @@ fun StudySessionScreen(
         ) {
             // Study Session Options header
             if (!isFocusModActive) {
-                Card(
+                GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -241,6 +242,8 @@ fun StudySessionScreen(
             }
 
             // Realistic Flip Card Surface Box
+            val isDarkCard = isSystemInDarkTheme()
+            val cardSurfaceColor = if (isDarkCard) MaterialTheme.colorScheme.surface else Color.White
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -250,9 +253,14 @@ fun StudySessionScreen(
                         rotationY = rotation
                         cameraDistance = 12f * density
                     }
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .combinedClickable(
+                    .shadow(elevation = if (isDarkCard) 1.dp else 6.dp, shape = RoundedCornerShape(24.dp))
+                    .border(
+                        1.dp,
+                        if (isDarkCard) MaterialTheme.colorScheme.outline.copy(alpha = 0.2f) else Color.Transparent,
+                        RoundedCornerShape(24.dp)
+                    )
+                    .background(cardSurfaceColor, shape = RoundedCornerShape(24.dp))
+                    .appCardClickable(
                         onClick = { viewModel.flipCard() },
                         onLongClick = { showAddNoteDialog = activeCard }
                     )

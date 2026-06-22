@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.DailyStatistic
 import com.example.data.model.Deck
-import com.example.ui.components.HeroHeader
+import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 import java.text.SimpleDateFormat
@@ -42,6 +43,7 @@ fun HomeScreen(
     onReviewMistakesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val isDark = isSystemInDarkTheme()
     val decks by viewModel.decks.collectAsState()
     val allCards by viewModel.allCards.collectAsState()
     val statistics by viewModel.allStatistics.collectAsState()
@@ -76,7 +78,7 @@ fun HomeScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(MaterialTheme.colorScheme.background)
+            .screenBackground()
     ) {
         HeroHeader(
             title = "FlashMaster",
@@ -89,15 +91,13 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Motivational Quote Card
-        Card(
+        GlassCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .padding(horizontal = 16.dp)
         ) {
             Row(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -241,57 +241,47 @@ fun OverviewMetricCard(
     color: Color,
     modifier: Modifier = Modifier
 ) {
-    val isDark = isSystemInDarkTheme()
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(
-            1.dp,
-            if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    GlassCard(
+        modifier = modifier
     ) {
-        Column(modifier = Modifier.padding(18.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(color.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(color.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = color,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        letterSpacing = (-0.5).sp
-                    )
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(20.dp)
                 )
             }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Column {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Medium
+                )
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    letterSpacing = (-0.5).sp
+                )
+            )
         }
     }
 }
@@ -307,28 +297,11 @@ fun ProgressAnalyticsCard(
     val progressPercent = if (totalCount > 0) (masteredCount * 100) / totalCount else 0
     val isDark = isSystemInDarkTheme()
 
-    Card(
+    GlassCard(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = if (isDark) {
-                            listOf(Color(0xFF2A2475), Color(0xFF4C1D95))
-                        } else {
-                            listOf(Color(0xFF4F46E5), Color(0xFF7C3AED))
-                        }
-                    )
-                )
-                .padding(20.dp)
-        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -339,13 +312,13 @@ fun ProgressAnalyticsCard(
                         text = "Smart Learning Progress",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = if (isDark) Color.White else HeadingLight
                         )
                     )
                     Text(
                         text = "Score based on mastery and consistency",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color.White.copy(alpha = 0.75f)
+                            color = if (isDark) Color.White.copy(alpha = 0.75f) else BodyLight
                         )
                     )
                 }
@@ -353,7 +326,7 @@ fun ProgressAnalyticsCard(
                     modifier = Modifier
                         .size(44.dp)
                         .background(
-                            color = Color.White.copy(alpha = 0.15f),
+                            color = if (isDark) Color.White.copy(alpha = 0.15f) else PrimaryLight.copy(alpha = 0.12f),
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -362,7 +335,7 @@ fun ProgressAnalyticsCard(
                         text = "$learningScore",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                            color = if (isDark) Color.White else PrimaryLight
                         )
                     )
                 }
@@ -380,22 +353,22 @@ fun ProgressAnalyticsCard(
                     text = "Mastery Level ($masteredCount/$totalCount cards)",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Medium,
-                        color = Color.White.copy(alpha = 0.9f)
+                        color = if (isDark) Color.White.copy(alpha = 0.9f) else BodyLight
                     )
                 )
                 Text(
                     text = "$progressPercent%",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = if (isDark) Color.White else PrimaryLight
                     )
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { if (totalCount > 0) masteredCount.toFloat() / totalCount else 0f },
-                color = Color.White,
-                trackColor = Color.White.copy(alpha = 0.2f),
+                color = if (isDark) Color.White else PrimaryLight,
+                trackColor = if (isDark) Color.White.copy(alpha = 0.2f) else PrimaryLight.copy(alpha = 0.12f),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
@@ -408,7 +381,7 @@ fun ProgressAnalyticsCard(
                 text = "My Study Performance (Last 7 Days)",
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = if (isDark) Color.White.copy(alpha = 0.8f) else BodyLight
                 )
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -436,8 +409,11 @@ fun ProgressAnalyticsCard(
                                 .size(30.dp)
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
-                                    if (active) Color.White
-                                    else Color.White.copy(alpha = 0.15f)
+                                    if (active) {
+                                        if (isDark) Color.White else PrimaryLight
+                                    } else {
+                                        if (isDark) Color.White.copy(alpha = 0.15f) else PrimaryLight.copy(alpha = 0.08f)
+                                    }
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
@@ -445,7 +421,7 @@ fun ProgressAnalyticsCard(
                                 Icon(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = null,
-                                    tint = if (isDark) Color(0xFF2A2475) else Color(0xFF4F46E5),
+                                    tint = if (isDark) Color(0xFF2A2475) else Color.White,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }
@@ -465,14 +441,13 @@ fun ProgressAnalyticsCard(
                         Text(
                             text = dayLabel,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = if (isDark) Color.White.copy(alpha = 0.7f) else BodyLight.copy(alpha = 0.8f)
                         )
                     }
                 }
             }
         }
     }
-}
 
 @Composable
 fun QuickActionButton(
@@ -487,16 +462,16 @@ fun QuickActionButton(
     Card(
         modifier = modifier
             .testTag(testTag)
-            .clickable { onClick() },
+            .appCardClickable { onClick() },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isDark) color.copy(alpha = 0.15f) else color.copy(alpha = 0.05f)
+            containerColor = if (isDark) color.copy(alpha = 0.15f) else Color.White
         ),
         border = BorderStroke(
-            1.dp,
-            if (isDark) color.copy(alpha = 0.3f) else color.copy(alpha = 0.15f)
+            width = if (isDark) 1.dp else 0.75.dp,
+            color = if (isDark) color.copy(alpha = 0.3f) else PrimaryLight.copy(alpha = 0.15f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 0.dp else 6.dp)
     ) {
         Column(
             modifier = Modifier

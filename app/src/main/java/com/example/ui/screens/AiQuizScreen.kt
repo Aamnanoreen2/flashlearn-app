@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,8 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.Deck
-import com.example.ui.components.EmptyPlaceholder
-import com.example.ui.components.HeroHeader
+import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 import com.example.ui.viewmodel.QuizQuestion
@@ -74,7 +74,7 @@ fun AiQuizScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+                .screenBackground()
         ) {
             if (loading) {
                 // AI Quiz Generating Loading Page
@@ -177,17 +177,14 @@ fun AiQuizScreen(
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         // Question Card
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        GlassCard(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
                                 text = activeQuestion.question,
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, lineHeight = 24.sp),
-                                modifier = Modifier.padding(20.dp),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                         
@@ -214,23 +211,39 @@ fun AiQuizScreen(
                                     else -> Color.Transparent
                                 }
 
+                                 val isDarkOption = isSystemInDarkTheme()
+                                val optionBg = if (alreadyAnswered || selectedOfCurrentUser) {
+                                    containerColor
+                                } else {
+                                    if (isDarkOption) MaterialTheme.colorScheme.surface else Color.White
+                                }
+                                val optionElevation = if (alreadyAnswered || selectedOfCurrentUser) 0.dp else (if (isDarkOption) 1.dp else 6.dp)
+
                                 Card(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .border(
-                                            width = if (borderStrokeColor != Color.Transparent) 2.dp else 0.dp,
-                                            color = borderStrokeColor,
-                                            shape = RoundedCornerShape(14.dp)
-                                        )
-                                        .clickable(enabled = !alreadyAnswered) {
+                                        .appCardClickable(enabled = !alreadyAnswered) {
                                             selectedOption = option
                                             if (option == activeQuestion.correctAnswer) {
                                                 scoreCount += 1
                                             }
                                         }
                                         .testTag("quiz_option_${option.take(15)}"),
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = CardDefaults.cardColors(containerColor = containerColor)
+                                    shape = RoundedCornerShape(24.dp),
+                                    colors = CardDefaults.cardColors(containerColor = optionBg),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = optionElevation),
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        width = if (alreadyAnswered || selectedOfCurrentUser) {
+                                            if (borderStrokeColor != Color.Transparent) 2.dp else 0.dp
+                                        } else {
+                                            if (isDarkOption) 1.dp else 0.75.dp
+                                        },
+                                        color = if (alreadyAnswered || selectedOfCurrentUser) {
+                                            borderStrokeColor
+                                        } else {
+                                            if (isDarkOption) MaterialTheme.colorScheme.outline.copy(alpha = 0.2f) else PrimaryLight.copy(alpha = 0.15f)
+                                        }
+                                    )
                                 ) {
                                     Row(
                                         modifier = Modifier.padding(16.dp),

@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.Achievement
 import com.example.data.model.DailyStatistic
-import com.example.ui.components.HeroHeader
+import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 import java.text.SimpleDateFormat
@@ -63,7 +63,7 @@ fun StatisticsScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .screenBackground()
     ) {
         item {
             HeroHeader(
@@ -84,15 +84,11 @@ fun StatisticsScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Accuracy Rate circular card
-                Card(
-                    modifier = Modifier.weight(1.1f),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                GlassCard(
+                    modifier = Modifier.weight(1.1f)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -124,17 +120,12 @@ fun StatisticsScreen(
                 }
 
                 // Cards Mastered overview
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                GlassCard(
+                    modifier = Modifier.weight(1f)
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                            .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
@@ -164,18 +155,14 @@ fun StatisticsScreen(
         // Mini Analytics statistics grid
         item {
             Spacer(modifier = Modifier.height(16.dp))
-            Card(
+            GlassCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF))
+                    .padding(horizontal = 16.dp)
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     StatSummaryTile(
@@ -210,15 +197,12 @@ fun StatisticsScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             
-            Card(
+            GlassCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF))
+                    .padding(horizontal = 16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = "Studied cards log (Recent recordings)",
                         style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)

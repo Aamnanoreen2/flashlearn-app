@@ -23,12 +23,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.Deck
 import com.example.data.model.Flashcard
-import com.example.ui.components.EmptyPlaceholder
-import com.example.ui.components.HeroHeader
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.example.ui.components.*
 import com.example.ui.theme.CorrectGreen
 import com.example.ui.theme.HardOrange
 import com.example.ui.theme.IncorrectRed
 import com.example.ui.theme.SecondaryLight
+import com.example.ui.theme.PrimaryLight
+import androidx.compose.foundation.BorderStroke
 import com.example.ui.viewmodel.FlashMasterViewModel
 
 @Composable
@@ -50,7 +52,7 @@ fun StudyScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .screenBackground()
     ) {
         HeroHeader(
             title = "Study Hub",
@@ -68,70 +70,66 @@ fun StudyScreen(
         ) {
             // Study due cards immediately!
             item {
-                Card(
+                val isDark = isSystemInDarkTheme()
+                GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("due_reviews_banner"),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                        .testTag("due_reviews_banner")
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Daily Spaced Reviews",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                                )
-                                Text(
-                                    text = "Ready to recall based on learning intervals",
-                                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(IncorrectRed.copy(alpha = 0.2f))
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                            ) {
-                                Text(
-                                    text = "$dueCardsCount Due",
-                                    color = IncorrectRed,
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold)
-                                )
-                            }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "Daily Spaced Reviews",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Text(
+                                text = "Ready to recall based on learning intervals",
+                                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            )
                         }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = {
-                                if (dueCardsCount == 0) {
-                                    Toast.makeText(context, "All caught up on spaced repetition reviews! Try regular deck study.", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    // Start session on due cards! Using a dummy deck placeholder or the first deck
-                                    val targetDeck = decks.firstOrNull { d -> allCards.any { c -> c.deckId == d.id && c.nextReviewTime <= System.currentTimeMillis() } } 
-                                        ?: decks.firstOrNull()
-                                    if (targetDeck != null) {
-                                        val dueCards = allCards.filter { it.nextReviewTime <= System.currentTimeMillis() }
-                                        onStartStudy(targetDeck, dueCards)
-                                    }
-                                }
-                            },
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(46.dp)
-                                .testTag("start_due_study_btn"),
-                            shape = RoundedCornerShape(12.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(IncorrectRed.copy(alpha = 0.2f))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-                            Icon(imageVector = Icons.Default.DirectionsRun, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Start Spaced Reviews", fontWeight = FontWeight.Bold)
+                            Text(
+                                text = "$dueCardsCount Due",
+                                color = IncorrectRed,
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold)
+                            )
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            if (dueCardsCount == 0) {
+                                Toast.makeText(context, "All caught up on spaced repetition reviews! Try regular deck study.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                // Start session on due cards! Using a dummy deck placeholder or the first deck
+                                val targetDeck = decks.firstOrNull { d -> allCards.any { c -> c.deckId == d.id && c.nextReviewTime <= System.currentTimeMillis() } } 
+                                    ?: decks.firstOrNull()
+                                if (targetDeck != null) {
+                                    val dueCards = allCards.filter { it.nextReviewTime <= System.currentTimeMillis() }
+                                    onStartStudy(targetDeck, dueCards)
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                            .testTag("start_due_study_btn"),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(imageVector = Icons.Default.DirectionsRun, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Start Spaced Reviews", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -143,78 +141,74 @@ fun StudyScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                val isDarkLocal = isSystemInDarkTheme()
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.NewReleases,
-                                    contentDescription = null,
-                                    tint = IncorrectRed,
-                                    modifier = Modifier.size(24.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.NewReleases,
+                                contentDescription = null,
+                                tint = IncorrectRed,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "Review Errors",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(
-                                        text = "Review Errors",
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                                    )
-                                    Text(
-                                        text = "${mistakes.size} cards failed in study",
-                                        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    )
-                                }
-                            }
-                            
-                            if (mistakes.isNotEmpty()) {
-                                TextButton(
-                                    onClick = {
-                                        viewModel.clearAllMistakes()
-                                        Toast.makeText(context, "Mistakes log cleared!", Toast.LENGTH_SHORT).show()
-                                    },
-                                    modifier = Modifier.testTag("clear_mistakes_btn")
-                                ) {
-                                    Text("Clear All", color = IncorrectRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                }
+                                Text(
+                                    text = "${mistakes.size} cards failed in study",
+                                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                )
                             }
                         }
-
-                        if (mistakes.isEmpty()) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "🎉 Outstanding! No logged mistake cards. Study decks to generate spaced error records.",
-                                style = MaterialTheme.typography.bodyMedium.copy(color = CorrectGreen, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth().padding(8.dp)
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
+                        
+                        if (mistakes.isNotEmpty()) {
+                            TextButton(
                                 onClick = {
-                                    // Make a dummy deck representing mistakes
-                                    val dummyDeck = Deck(id = -10, name = "Mistakes Review", colorHex = "#E53935", iconName = "menu_book")
-                                    onStartStudy(dummyDeck, mistakes)
+                                    viewModel.clearAllMistakes()
+                                    Toast.makeText(context, "Mistakes log cleared!", Toast.LENGTH_SHORT).show()
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(46.dp)
-                                    .testTag("review_mistakes_now_btn"),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = IncorrectRed)
+                                modifier = Modifier.testTag("clear_mistakes_btn")
                             ) {
-                                Icon(imageVector = Icons.Default.PlaylistPlay, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Review Failed Cards", fontWeight = FontWeight.Bold)
+                                Text("Clear All", color = IncorrectRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
+                        }
+                    }
+
+                    if (mistakes.isEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "🎉 Outstanding! No logged mistake cards. Study decks to generate spaced error records.",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = CorrectGreen, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                // Make a dummy deck representing mistakes
+                                val dummyDeck = Deck(id = -10, name = "Mistakes Review", colorHex = "#E53935", iconName = "menu_book")
+                                onStartStudy(dummyDeck, mistakes)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(46.dp)
+                                .testTag("review_mistakes_now_btn"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = IncorrectRed)
+                        ) {
+                            Icon(imageVector = Icons.Default.PlaylistPlay, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Review Failed Cards", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -227,65 +221,61 @@ fun StudyScreen(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
                 Spacer(modifier = Modifier.height(6.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                val isDarkFavorites = isSystemInDarkTheme()
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = HardOrange,
-                                    modifier = Modifier.size(24.dp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = HardOrange,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "Starred Flashcards",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                                 )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(
-                                        text = "Starred Flashcards",
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                                    )
-                                    Text(
-                                        text = "${favorites.size} starred review cards",
-                                        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    )
-                                }
+                                Text(
+                                    text = "${favorites.size} starred review cards",
+                                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                )
                             }
                         }
+                    }
 
-                        if (favorites.isEmpty()) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                    text = "Star important cards while reading deck details by double tapping them.",
-                                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth().padding(8.dp)
-                            )
-                        } else {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = {
-                                    val dummyDeck = Deck(id = -20, name = "My Starred Cards", colorHex = "#FF9800", iconName = "star")
-                                    onStartStudy(dummyDeck, favorites)
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(46.dp)
-                                    .testTag("study_favorites_btn"),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = HardOrange)
-                            ) {
-                                Icon(imageVector = Icons.Default.Grade, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Study Starred Only", fontWeight = FontWeight.Bold)
-                            }
+                    if (favorites.isEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Star important cards while reading deck details by double tapping them.",
+                            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        )
+                    } else {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                val dummyDeck = Deck(id = -20, name = "My Starred Cards", colorHex = "#FF9800", iconName = "star")
+                                onStartStudy(dummyDeck, favorites)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(46.dp)
+                                .testTag("study_favorites_btn"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = HardOrange)
+                        ) {
+                            Icon(imageVector = Icons.Default.Grade, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Study Starred Only", fontWeight = FontWeight.Bold)
                         }
                     }
                 }

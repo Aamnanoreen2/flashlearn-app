@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -26,6 +27,102 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.theme.PrimaryLight
 import com.example.ui.theme.SecondaryLight
 import com.example.ui.theme.TertiaryLight
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
+
+@Composable
+fun getAdaptiveGradient(): Brush {
+    val isDark = isSystemInDarkTheme()
+    return if (isDark) {
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF312E81), Color(0xFF6D28D9)) // Deep Indigo → Violet
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF4F46E5), Color(0xFF3B82F6)) // Indigo → Blue
+        )
+    }
+}
+
+@Composable
+fun getAdaptiveSecondaryGradient(): Brush {
+    val isDark = isSystemInDarkTheme()
+    return if (isDark) {
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF0F172A), Color(0xFF581C87)) // Navy → Purple
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(Color(0xFF6366F1), Color(0xFF8B5CF6)) // Indigo → Purple
+        )
+    }
+}
+
+@Composable
+fun GlassCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val isDark = isSystemInDarkTheme()
+    val cardBg = if (isDark) {
+        Color(0xFF1E293B) // Premium solid opaque Slate 800 (no glassmorphic transparency)
+    } else {
+        Color.Transparent // Transparent container so inner gradient is fully visible with glass effect
+    }
+    
+    val borderColor = if (isDark) {
+        Color(0xFF334155) // Solid Slate 700 border
+    } else {
+        Color(0x3378A0FF) // rgba(120, 160, 255, 0.2) subtle blue outline
+    }
+    
+    val elevationValue = if (isDark) 1.dp else 8.dp
+    val cardModifier = if (isDark) {
+        modifier
+    } else {
+        modifier.shadow(
+            elevation = elevationValue,
+            shape = RoundedCornerShape(24.dp),
+            clip = false,
+            spotColor = Color(0x145078C8),
+            ambientColor = Color(0x145078C8)
+        )
+    }
+    
+    Card(
+        modifier = cardModifier,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
+        border = BorderStroke(if (isDark) 1.dp else 0.75.dp, borderColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isDark) 1.dp else 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .then(
+                    if (isDark) Modifier
+                    else Modifier.background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xB3FFFFFF), // rgba(255,255,255,0.7) for top inner highlight
+                                Color(0x66E6F0FF)  // rgba(230,240,255,0.4) for bottom reflection
+                            )
+                        )
+                    )
+                )
+                .padding(20.dp),
+            content = content
+        )
+    }
+}
 
 @Composable
 fun HeroHeader(
@@ -37,12 +134,11 @@ fun HeroHeader(
     testTagSuffix: String = ""
 ) {
     val isDark = isSystemInDarkTheme()
-    val borderBottomColor = if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF)
     
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(Color.Transparent)
             .padding(top = 22.dp, bottom = 18.dp, start = 20.dp, end = 20.dp)
     ) {
         Column(
@@ -54,7 +150,7 @@ fun HeroHeader(
                 text = title,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    color = if (isDark) Color.White else Color(0xFF1F2937), // Indigo-950/Slate-900 style
+                    color = MaterialTheme.colorScheme.onBackground,
                     letterSpacing = (-0.5).sp
                 ),
                 maxLines = 1,
@@ -64,7 +160,7 @@ fun HeroHeader(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall.copy(
-                    color = if (isDark) Color.White.copy(alpha = 0.7f) else Color(0xFF64748B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 ),
                 maxLines = 2,
@@ -83,12 +179,12 @@ fun HeroHeader(
                     modifier = Modifier
                         .size(40.dp)
                         .background(
-                            if (isDark) Color.White.copy(alpha = 0.08f) else Color(0xFFF1F5F9),
+                            MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(12.dp)
                         )
                         .border(
                             1.dp,
-                            if (isDark) Color.White.copy(alpha = 0.15f) else Color(0xFFE2E8F0),
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                             shape = RoundedCornerShape(12.dp)
                         )
                         .testTag("header_action_$testTagSuffix")
@@ -96,7 +192,7 @@ fun HeroHeader(
                     Icon(
                         imageVector = actionIcon,
                         contentDescription = "Header action",
-                        tint = if (isDark) Color.White else Color(0xFF4F46E5),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -105,15 +201,11 @@ fun HeroHeader(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(Color(0xFF4F46E5), Color(0xFF7C3AED))
-                            )
-                        ),
+                        .background(getAdaptiveGradient()),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "A",
+                        text = "F",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color.White
@@ -147,9 +239,7 @@ fun GradientButton(
                 .fillMaxSize()
                 .background(
                     if (enabled) {
-                        Brush.linearGradient(
-                            colors = listOf(PrimaryLight, SecondaryLight)
-                        )
+                        getAdaptiveGradient()
                     } else {
                         Brush.linearGradient(
                             colors = listOf(Color.Gray.copy(alpha = 0.4f), Color.Gray.copy(alpha = 0.4f))
@@ -172,11 +262,11 @@ fun GradientButton(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
+                     text = text,
+                     style = MaterialTheme.typography.titleMedium.copy(
+                         color = Color.White,
+                         fontWeight = FontWeight.Bold
+                     )
                 )
             }
         }
@@ -242,3 +332,69 @@ fun EmptyPlaceholder(
         }
     }
 }
+
+@Composable
+fun Modifier.screenBackground(): Modifier {
+    val isDark = isSystemInDarkTheme()
+    return if (isDark) {
+        this.background(MaterialTheme.colorScheme.background)
+    } else {
+        this.background(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFFF7F9FC), // soft off-white
+                    Color(0xFFEEF4FF)  // very light blue
+                )
+            )
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+fun Modifier.appCardClickable(
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: androidx.compose.ui.semantics.Role? = null,
+    onLongClickLabel: String? = null,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
+    onClick: () -> Unit
+): Modifier = this.composed {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed && enabled) 0.98f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "card_scale"
+    )
+    val translationY by animateFloatAsState(
+        targetValue = if (isPressed && enabled) 4f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "card_translation_elevation"
+    )
+
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+            this.translationY = translationY
+        }
+        .combinedClickable(
+            interactionSource = interactionSource,
+            indication = androidx.compose.foundation.LocalIndication.current,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onLongClickLabel = onLongClickLabel,
+            onLongClick = onLongClick,
+            onDoubleClick = onDoubleClick,
+            onClick = onClick
+        )
+}
+

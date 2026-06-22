@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.Deck
-import com.example.ui.components.HeroHeader
+import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 import kotlinx.coroutines.flow.firstOrNull
@@ -77,7 +77,7 @@ fun SettingsScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(MaterialTheme.colorScheme.background)
+            .screenBackground()
     ) {
         HeroHeader(
             title = "App Settings",
@@ -180,15 +180,14 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // About block metadata credentials
-        Card(
+        GlassCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = 120.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .padding(bottom = 120.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -323,24 +322,20 @@ fun SettingsCategorySection(
     title: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val isDark = isSystemInDarkTheme()
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 6.dp)
+            text = title.uppercase(java.util.Locale.getDefault()),
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.sp,
+                color = MaterialTheme.colorScheme.primary
+            ),
+            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
         )
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        GlassCard(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Column {
-                content()
-            }
+            content()
         }
     }
 }
@@ -480,13 +475,13 @@ fun ThemeSelectorRow(
         Spacer(modifier = Modifier.height(16.dp))
         
         // Segmented selector container
-        val borderThemeColor = if (isDark) Color(0xFF2E3A59) else Color(0xFFEEF2FF)
+        val borderThemeColor = MaterialTheme.colorScheme.outline
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(44.dp)
+                .height(45.dp)
                 .clip(RoundedCornerShape(14.dp))
-                .background(if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                 .border(1.dp, borderThemeColor, RoundedCornerShape(14.dp))
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -500,8 +495,8 @@ fun ThemeSelectorRow(
             options.forEach { (mode, label, icon) ->
                 val isSelected = themeMode == mode
                 val activeBg = MaterialTheme.colorScheme.primary
-                val activeText = Color.White
-                val inactiveText = if (isDark) Color(0xFF94A3B8) else Color(0xFF475569)
+                val activeText = MaterialTheme.colorScheme.onPrimary
+                val inactiveText = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 
                 Box(
                     modifier = Modifier

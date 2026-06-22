@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import android.widget.Toast
 import androidx.compose.animation.*
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -31,6 +32,9 @@ import com.example.data.model.Deck
 import com.example.data.model.Flashcard
 import com.example.ui.components.EmptyPlaceholder
 import com.example.ui.components.GradientButton
+import com.example.ui.components.GlassCard
+import com.example.ui.components.screenBackground
+import com.example.ui.components.appCardClickable
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 
@@ -101,22 +105,19 @@ fun DeckDetailsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+                .screenBackground()
         ) {
             // Deck Overview Info
-            Card(
+            val isDarkOverview = isSystemInDarkTheme()
+            GlassCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    .padding(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = deck.category,
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, color = systemColor)
-                    )
+                Text(
+                    text = deck.category,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, color = systemColor)
+                )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = if (deck.description.isNotBlank()) deck.description else "No description specified.",
@@ -170,7 +171,6 @@ fun DeckDetailsScreen(
                         }
                     }
                 }
-            }
 
             // Search Bar Input
             TextField(
@@ -289,19 +289,18 @@ fun FlashcardListItem(
         else -> SecondaryLight
     }
 
-    Card(
+    val isDarkItem = isSystemInDarkTheme()
+    GlassCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .combinedClickable(
+            .clip(RoundedCornerShape(24.dp))
+            .appCardClickable(
                 onClick = { expanded = !expanded },
                 onDoubleClick = onDoubleTap
             )
-            .testTag("card_list_item_${card.id}"),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .testTag("card_list_item_${card.id}")
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

@@ -30,8 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.Deck
-import com.example.ui.components.EmptyPlaceholder
-import com.example.ui.components.HeroHeader
+import com.example.ui.components.*
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.FlashMasterViewModel
 import java.text.SimpleDateFormat
@@ -96,7 +95,7 @@ fun DecksScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
+                .screenBackground()
         ) {
             HeroHeader(
                 title = "My Decks",
@@ -288,27 +287,18 @@ fun DeckCard(
     }
 
     val isDark = isSystemInDarkTheme()
-    Card(
+    GlassCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .combinedClickable(
+            .appCardClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
-            .testTag("deck_item_card_${deck.id}"),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(
-            1.dp,
-            if (isDark) Color(0xFF222B45) else Color(0xFFEEF2FF)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .testTag("deck_item_card_${deck.id}")
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(14.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

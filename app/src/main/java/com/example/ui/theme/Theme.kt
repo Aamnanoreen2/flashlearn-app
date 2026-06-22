@@ -19,8 +19,11 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = BackgroundDark,
     onSecondary = BackgroundDark,
     onTertiary = BackgroundDark,
-    onBackground = SurfaceLight,
-    onSurface = SurfaceLight
+    onBackground = HeadingDark,
+    onSurface = HeadingDark,
+    surfaceVariant = ElevatedCardDark,
+    onSurfaceVariant = BodyDark,
+    outline = BorderDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,8 +35,11 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = SurfaceLight,
     onSecondary = SurfaceLight,
     onTertiary = SurfaceLight,
-    onBackground = BackgroundDark,
-    onSurface = BackgroundDark
+    onBackground = HeadingLight,
+    onSurface = HeadingLight,
+    surfaceVariant = SecondarySurfaceLight,
+    onSurfaceVariant = BodyLight,
+    outline = BorderLight
 )
 
 @Composable
